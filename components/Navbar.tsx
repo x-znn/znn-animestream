@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, Search, X } from 'lucide-react';
+import { ExternalLink, Menu, MessageCircle, Search, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
+
+const CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb6jzN97z4keastNq73f';
 
 const links = [
   { href: '/', label: 'Beranda' },
@@ -80,6 +82,10 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <a href={CHANNEL_URL} target="_blank" rel="noreferrer" onClick={() => setOpen(false)} className="mt-2 flex items-center justify-between rounded-2xl border border-[#7057ff]/20 bg-[#7057ff]/10 px-4 py-3.5 text-sm font-bold text-[#c6bcff] transition hover:bg-[#7057ff]/15">
+              <span className="flex items-center gap-2"><MessageCircle className="h-4 w-4" /> Gabung Saluran</span>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
           </div>
         </div>
       )}
