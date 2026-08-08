@@ -299,8 +299,15 @@ export async function searchAnime(query: string): Promise<AnimeSearchData> {
 }
 
 export async function getAnimeDetail(slug: string): Promise<AnimeDetailData> {
-  const cleanSlug = endpointForApi(slug);
-  const result = await fetchApi<RawAnimeDetailResult>(`/otakudesu-get?url=${encodeURIComponent(cleanSlug)}`, { revalidate: 120 });
+  let decodedSlug = slug;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {
+    decodedSlug = slug;
+  }
+  const cleanSlug = decodedSlug.replace(/^\/+|\/+$/g, '');
+  const animeUrl = `https://otakudesu.blog/anime/${encodeURIComponent(cleanSlug)}/`;
+  const result = await fetchApi<RawAnimeDetailResult>(`/otakudesu-get?url=${encodeURIComponent(animeUrl)}`, { revalidate: 120 });
   const rawEpisodes = Array.isArray(result.episodes) ? result.episodes : [];
   const episodes: EpisodeItem[] = rawEpisodes.map((value) => {
     const episode = toRawEpisode(value);

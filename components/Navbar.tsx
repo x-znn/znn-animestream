@@ -31,7 +31,7 @@ export function Navbar() {
       <div className="mx-auto flex h-18 max-w-7xl items-center gap-5 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[#8b73ff] to-[#5d43df] font-black text-white shadow-[0_8px_28px_rgba(112,87,255,.35)]">Z</span>
-          <span className="text-lg font-black tracking-tight text-white">ZNN Anime</span>
+          <span className="text-lg font-black tracking-tight text-white">ZNN Animestream</span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">

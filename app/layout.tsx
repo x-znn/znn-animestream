@@ -3,7 +3,7 @@ import './globals.css';
 import { Navbar } from '@/components/Navbar';
 
 export const metadata: Metadata = {
-  title: { default: 'ZNN Anime', template: '%s | ZNN Anime' },
+  title: { default: 'ZNN Animestream', template: '%s | ZNN Animestream' },
   description: 'Streaming anime subtitle Indonesia dengan katalog ongoing, completed, pencarian, dan daftar episode.',
 };
 
