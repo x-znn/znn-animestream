@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Clock3, Play } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 
 export type WatchHistoryItem = {
   animeSlug: string;
@@ -15,21 +15,59 @@ export type WatchHistoryItem = {
 };
 
 const KEY = 'znnAnimeWatchHistory';
+const CHANGE_EVENT = 'znn-anime-watch-history-change';
+const EMPTY = '[]';
+
+function subscribe(callback: () => void) {
+  if (typeof window === 'undefined') return () => {};
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === KEY) callback();
+  };
+
+  window.addEventListener('storage', onStorage);
+  window.addEventListener(CHANGE_EVENT, callback);
+
+  return () => {
+    window.removeEventListener('storage', onStorage);
+    window.removeEventListener(CHANGE_EVENT, callback);
+  };
+}
+
+function getSnapshot() {
+  if (typeof window === 'undefined') return EMPTY;
+  return localStorage.getItem(KEY) || EMPTY;
+}
+
+function getServerSnapshot() {
+  return EMPTY;
+}
+
+function parseHistory(raw: string): WatchHistoryItem[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed as WatchHistoryItem[] : [];
+  } catch {
+    return [];
+  }
+}
 
 export function saveWatchHistory(item: WatchHistoryItem) {
   if (typeof window === 'undefined') return;
+
+  const current = parseHistory(getSnapshot());
+  const next = [item, ...current.filter((x) => x.episodeSlug !== item.episodeSlug)].slice(0, 12);
+
   try {
-    const current = JSON.parse(localStorage.getItem(KEY) || '[]') as WatchHistoryItem[];
-    const next = [item, ...current.filter((x) => x.episodeSlug !== item.episodeSlug)].slice(0, 12);
     localStorage.setItem(KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event(CHANGE_EVENT));
   } catch {}
 }
 
 export function ContinueWatching() {
-  const [items, setItems] = useState<WatchHistoryItem[]>([]);
-  useEffect(() => {
-    try { setItems(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { setItems([]); }
-  }, []);
+  const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const items = useMemo(() => parseHistory(raw), [raw]);
+
   if (!items.length) return null;
 
   return (
