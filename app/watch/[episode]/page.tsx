@@ -13,20 +13,33 @@ export default async function WatchPage({ params, searchParams }: { params: Prom
     return <Message title="Data anime tidak lengkap" text="Buka episode melalui halaman detail anime agar navigasi episode tetap tersedia." />;
   }
 
-  const [anime, stream] = await Promise.all([
-    getAnimeDetail(animeSlug),
-    getAnimeStream(episode),
-  ]);
+  const anime = await getAnimeDetail(animeSlug);
 
-  const index = anime.episodes.findIndex((ep) => ep.slug === episode);
+  let requestedEpisode = episode;
+  try {
+    requestedEpisode = decodeURIComponent(episode);
+  } catch {
+    requestedEpisode = episode;
+  }
+
+  const requestedEndpoint = requestedEpisode
+    .split('?')[0]
+    .split('#')[0]
+    .split('/')
+    .filter(Boolean)
+    .at(-1) || requestedEpisode;
+
+  const index = anime.episodes.findIndex((ep) => ep.slug === requestedEndpoint);
   const prev = index > 0 ? anime.episodes[index - 1] : null;
   const next = index >= 0 && index < anime.episodes.length - 1 ? anime.episodes[index + 1] : null;
   const current = index >= 0 ? anime.episodes[index] : null;
+  const streamEndpoint = current?.slug || requestedEndpoint;
+  const stream = await getAnimeStream(streamEndpoint);
   const episodeTitle = stream.title || current?.title || 'Episode';
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <WatchTracker animeSlug={animeSlug} animeTitle={anime.title} poster={anime.thumb} episodeSlug={episode} episodeTitle={episodeTitle} />
+      <WatchTracker animeSlug={animeSlug} animeTitle={anime.title} poster={anime.thumb} episodeSlug={streamEndpoint} episodeTitle={episodeTitle} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">

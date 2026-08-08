@@ -228,12 +228,25 @@ export function endpointFromLink(link?: string | null): string {
   }
 }
 
-function endpointForApi(slug: string): string {
+function endpointForApi(value: string): string {
+  let decoded = value.trim();
   try {
-    return encodeURIComponent(decodeURIComponent(slug));
+    decoded = decodeURIComponent(decoded);
   } catch {
-    return encodeURIComponent(slug);
+    decoded = value.trim();
   }
+
+  if (/^https?:\/\//i.test(decoded) || decoded.includes('/episode/')) {
+    const fromLink = endpointFromLink(decoded);
+    if (fromLink) return fromLink;
+  }
+
+  return decoded
+    .split('?')[0]
+    .split('#')[0]
+    .split('/')
+    .filter(Boolean)
+    .at(-1) || '';
 }
 
 export function episodeNumberFromTitle(title?: string | null): number | null {
