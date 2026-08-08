@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { AlertTriangle, ChevronLeft, ChevronRight, ListVideo, MonitorPlay } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, ListVideo } from 'lucide-react';
 import { WatchTracker } from '@/components/WatchTracker';
+import { StreamPlayer } from '@/components/StreamPlayer';
 import { getAnimeDetail, getAnimeStream } from '@/lib/otakudesu';
 
 export const dynamic = 'force-dynamic';
@@ -51,25 +52,12 @@ export default async function WatchPage({ params, searchParams }: { params: Prom
         </Link>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_30px_90px_rgba(0,0,0,.4)]">
-        <div className="aspect-video w-full bg-black">
-          {stream.streamLink ? (
-            <iframe
-              src={stream.streamLink}
-              title={episodeTitle}
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-              allowFullScreen
-              referrerPolicy="no-referrer"
-              className="h-full w-full border-0"
-            />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center text-white/45">
-              <MonitorPlay className="h-10 w-10 text-white/20" />
-              <p className="text-sm">Link stream tidak tersedia untuk episode ini.</p>
-            </div>
-          )}
-        </div>
-      </section>
+      <StreamPlayer
+        key={streamEndpoint}
+        title={episodeTitle}
+        streamLink={stream.streamLink}
+        downloadLinks={stream.downloadLinks}
+      />
 
       <div className="flex items-center justify-between gap-3">
         {prev ? (
@@ -86,7 +74,7 @@ export default async function WatchPage({ params, searchParams }: { params: Prom
 
       <section className="rounded-2xl border border-white/9 bg-white/[.025] p-4 sm:p-5">
         <div className="flex items-center gap-2 text-sm font-bold text-white/70"><AlertTriangle className="h-4 w-4 text-[#a894ff]" /> Player bermasalah?</div>
-        <p className="mt-2 text-xs leading-5 text-white/40">Coba refresh halaman atau pilih episode lagi. Link player diambil ulang setiap halaman watch dibuka.</p>
+        <p className="mt-2 text-xs leading-5 text-white/40">Kalau server utama gagal, pilih server atau kualitas lain di kotak Pilih stream. Link player diambil ulang setiap halaman watch dibuka.</p>
       </section>
     </div>
   );
