@@ -1,5 +1,13 @@
 const API_BASE = (process.env.ZNN_API_BASE || 'https://api.znn.my.id').replace(/\/+$/, '');
 
+function znnAccessToken(): string {
+  const token = String(process.env.ZNN_ACCESS_TOKEN || '').trim();
+  if (!token) {
+    throw new Error('ZNN_ACCESS_TOKEN belum diatur di Environment Variables Vercel.');
+  }
+  return token;
+}
+
 export interface AnimeCardData {
   title: string;
   thumb: string | null;
@@ -190,7 +198,11 @@ function normalizeDownloadLinks(value: unknown): Record<string, StreamDownloadLi
 async function fetchApi<T>(path: string, options?: { revalidate?: number; noStore?: boolean }): Promise<T> {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
   const init: RequestInit & { next?: { revalidate?: number } } = {
-    headers: { accept: 'application/json' },
+    headers: {
+      accept: 'application/json',
+      'X-ZNN-Access': znnAccessToken(),
+      'user-agent': 'znn-animestream-vercel/1.1',
+    },
   };
 
   if (options?.noStore) {
